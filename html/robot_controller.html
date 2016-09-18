@@ -1,0 +1,135 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+
+<script type="text/javascript" src="http://cdn.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
+<script type="text/javascript" src="http://cdn.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
+
+<script type="text/javascript" type="text/javascript">
+  // Connecting to ROS
+  // -----------------
+  var ros = new ROSLIB.Ros({
+    url : 'ws://192.168.43.175:9090'
+  });
+
+  ros.on('connection', function() {
+    console.log('Connected to websocket server.');
+  });
+
+  ros.on('error', function(error) {
+    console.log('Error connecting to websocket server: ', error);
+  });
+
+  ros.on('close', function() {
+    console.log('Connection to websocket server closed.');
+  });
+
+  // Publishing a Topic
+  // ------------------
+
+  var motorCommandTopic = new ROSLIB.Topic({
+    ros : ros,
+    name : '/motor_command',
+    messageType : 'robot_controller/MotorCommand'
+  });
+
+  var lightToggleTopic = new ROSLIB.Topic({
+    ros : ros,
+    name : '/light_toggle',
+    messageType: 'std_msgs/Empty'
+  })
+
+  function sendMotorCommand(leftVal, rightVal) {
+      var motorCommandMessage = new ROSLIB.Message({
+        left : leftVal,
+        right : rightVal
+      });
+      motorCommandTopic.publish(motorCommandMessage);
+  }
+
+  function toggleLight() {
+    var lightToggleMessage = new ROSLIB.Message({});
+    lightToggleTopic.publish(lightToggleMessage);
+  }
+
+    function checkKey(e) {
+
+        e = e || window.event;
+
+        if (e.keyCode == '38') {
+            sendMotorCommand(0.5, 0.5);
+            console.log('fwd');
+        }
+        else if (e.keyCode == '40') {
+            sendMotorCommand(-0.5, -0.5);
+            console.log('back');
+        }
+        else if (e.keyCode == '37') {
+           sendMotorCommand(-0.9, 0.9);
+           console.log('left');
+        }
+        else if (e.keyCode == '39') {
+           sendMotorCommand(0.9, -0.9);
+           console.log('right');
+        }
+        else if (e.keyCode == '32') {
+          sendMotorCommand(0.0, 0.0);
+          console.log('stop');
+        }
+        else if (e.keyCode == '70') {
+          toggleLight();
+        }
+    }
+
+    function halt(e) {
+       sendMotorCommand(0.0, 0.0);
+    }
+    function drawRectangular() {
+      var mouseIsDown=false;
+      var isDrawing;
+      var startX;
+      var startY;
+      var endX;
+      var endY;
+      canvas.onclick = function (event) {
+        isDrawing=true;
+      }
+      canvas.onclick = function (event) {
+        isDrawing=false;
+      }
+      if(isDrawing){
+        isDrawing=false;
+        ctx.beginPath();
+        ctx.rect(startX,startY,mouseX-startX,mouseY-startY);
+        ctx.fill();
+        canvas.style.cursor="default";
+      }else{
+        isDrawing=true;
+        startX=mouseX;
+        startY=mouseY;
+        canvas.style.cursor="crosshair";
+      }
+    }
+
+
+
+  document.onkeydown = checkKey;
+  //document.onkeyup = halt;
+
+</script>
+</head>
+
+<body>
+  <img style="-webkit-user-select: none" src="http://192.168.43.175:8080/stream?topic=/usb_cam/image_raw&amp;width=320&amp;height=240&quality=10">
+  <br>
+  <button id="forwardButton" onclick="sendMotorCommand(0.5, 0.5)">Forward</button><br>
+    <button id="forwardButton" onclick="sendMotorCommand(-0.5, 0.5)">Left</button>
+  <button id="backwardButton" onclick="sendMotorCommand(0.0, 0.0)">Stop</button>
+    <button id="backwardButton" onclick="sendMotorCommand(0.5, -0.5)">Right</button><br>
+  <button id="backwardButton" onclick="sendMotorCommand(-0.5, -0.5)">Backward</button><br><br>
+  <button id="backwardButton" onclick="drawRectangular()">Light</button><br>
+  <script
+</body>
+</html>
