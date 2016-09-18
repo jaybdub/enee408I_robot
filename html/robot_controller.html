@@ -11,7 +11,7 @@
   // Connecting to ROS
   // -----------------
   var ros = new ROSLIB.Ros({
-    url : 'ws://192.168.43.175:9090'
+      url : 'ws://<ip_address>:9090'
   });
 
   ros.on('connection', function() {
@@ -122,7 +122,7 @@
 </head>
 
 <body>
-  <img style="-webkit-user-select: none" src="http://192.168.43.175:8080/stream?topic=/usb_cam/image_raw&amp;width=320&amp;height=240&quality=10">
+    <img style="-webkit-user-select: none" src="http://<ip_address>:8080/stream?topic=/usb_cam/image_raw&amp;width=320&amp;height=240&quality=10">
   <br>
   <button id="forwardButton" onclick="sendMotorCommand(0.5, 0.5)">Forward</button><br>
     <button id="forwardButton" onclick="sendMotorCommand(-0.5, 0.5)">Left</button>
